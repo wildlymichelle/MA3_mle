@@ -1,0 +1,168 @@
+% Name: Michelle Le
+% Class: ENGI 1331 
+% Section: TTH 1130am
+%% Problem 1 Test Case 
+
+% Problem Statement: Calculating the surface area and volume of a cylinder
+
+% Inputs:
+% Temp data- row(day) and column(temp at geographic area)
+% Overall data- row1 = min temp, row2= long term average temp, row3 = max
+% temp ever recorded 
+
+% Output: 
+% 
+
+
+% Housekeeping Commands 
+clear 
+clc 
+close all
+
+% Task 1 
+% Determine the minimum, mean, and max temp for each day (row).
+% Prompt the user to select a day, assume Dday 1 is in row 1
+% output the min, mean, and max temp for that day. 
+
+data = csvread('TempData.csv');
+[rows, cols] = size(data);
+options = 1:rows;
+options2 = num2cell(options);
+choose = menu('Select a day',options2);
+
+new_data = data(choose,:);
+ 
+Min = min(new_data);
+%EachMin = min(new_data,[],2);
+
+[MINt,MINl] = min(new_data);
+
+Max = max(new_data);r
+
+[MAXt, MAXl] = max(new_data);
+
+Allmin = min(data,[],2);
+Allmax = max(data,[],2);
+
+
+% Create a final matrix, min in col 1, max in col 2, and avg in col 3 
+
+Allavg =mean(data,2);
+Avg = mean(new_data);
+
+AllDays = [Allmin,Allavg,Allmax];
+fprintf('On Day %.0f, the following values were determined: \n',choose);
+fprintf('Minimum Temperature [degrees C]: %.1f (Measurement # %.0f) \n',Min,MINl);
+fprintf('Average Temperature [degrees C]: %.1f \n', Avg);
+fprintf('Maximum Temperature [degress C]: %.1f (Measurement # %.0f)\n \n',Max, MAXl);
+
+csvwrite('MA3Task1.csv',AllDays);
+
+
+% Task 2 
+
+% Determine the lowest average temp and highest temp and  which day it is
+% on and output the results. Also show the most extreme temp 
+
+MinOverall = min(min(AllDays)); 
+
+[MinO, MinOL] = min(min(AllDays));
+
+[MinOR,MinOC] = find(AllDays==MinOverall);
+
+MinAvg = min(min(Allavg));
+[MinAvgO, MinAvgOC] = find(AllDays==MinAvg);
+MaxAvg = max(max(Allavg));
+[MaxAvgO, MaxAvgOC] = find(AllDays==MaxAvg);
+
+MaxOverall = max(max(AllDays));
+[MaxO, MaxL] = max(max(AllDays)); 
+
+[MaxOR, MinOC] = find(AllDays==MaxOverall); 
+ 
+
+fprintf('The lowest average daily temperature was %.2f occurring on Day %.0f \n', MinAvg,MinAvgO);
+fprintf('The highest average daily temperature was %.2f occurring on Day %.0f \n',MaxAvg,MaxAvgO); 
+fprintf('The lowest minimum daily temperature was %.2f occurring on Day %.0f \n',MinO, MinOR);
+fprintf('The highest maximum daily temperature was %.2f occurring on Day %.0f \n \n', MaxOverall, MaxOR);
+% lowest minimum is printing out twice when inputted 
+
+% Task 3 
+
+Overall = xlsread('OVERALL.xls');
+OverallMin = min(Overall);
+OverallMax = max(Overall);
+OverallAvg = Overall(:,2);
+
+[OverallR, OverallC] = size(Overall);
+[OverallMinR, OverallMinC] = find(Allmin<OverallMin);
+minL = length(OverallMinR);
+[OverallMaxR,OverallMaxC] = find(Allmax>OverallMax);
+
+maxL = length(OverallMaxR);
+[OverallAvgC] = find(Allavg>OverallAvg);
+[OverallAvgR] = find(Allavg<OverallAvg); 
+MoreAvg = length(OverallAvgC);
+LessAvg = length(OverallAvgR);
+fprintf('There are %.0f days that were colder than the long-term daily minimum temperature. \n', minL);
+fprintf('There are %.0f days that were hotter than the long-term daily maximum temperature. \n',maxL);
+fprintf('There are %.0f days that were colder than the long-term daily average temperature. \n', LessAvg);
+fprintf('There are %.0f days that were hotter than the long-term daily average temperature. \n', MoreAvg);
+
+MinTemp = Allmin(OverallMinR);
+ColdDays = [MinTemp, OverallMinR];
+
+Under = Allavg(OverallAvgR);
+UnderAvg = [Under, OverallAvgR];
+Over = Allavg(OverallAvgC);
+OverAvg = [Over, OverallAvgC];
+
+MaxTemp = Allmax(OverallMaxR);
+HotDays = [MaxTemp,OverallMaxR];
+
+save('MA3Task3.mat', 'UnderAvg', 'OverAvg','HotDays', 'ColdDays');
+
+% Task 4 
+
+DiffMin = MinOverall - OverallMin;
+DiffMax = MaxOverall - OverallMax;
+DiffAvgMin = MinAvg - OverallAvg;
+DiffAvgMax = MaxAvg - OverallAvg;
+
+Difference = [DiffMin, DiffAvgMin, DiffAvgMax, DiffMax];
+
+csvwrite('MA3Task4.csv',Difference);
+
+% Task 5 
+
+TotalMeasurements = numel(data)/2;
+fprintf('It is expected that %.0f temperature readings would be above and below the long-term average temperature.\n \n', TotalMeasurements);
+Totes = find(AllDays(:,2)>OverallAvg);
+[TotesR, TotesC] = size(Totes);
+TotalSize = TotesR-TotalMeasurements;
+fprintf('It was found that %.0f temperature readings were above the long-term average. \n', TotalSize);
+
+% Task 6 
+
+S1 = sort(data,2);
+FinalMatrix = [S1,AllDays];
+
+
+csvwrite('MA3_Final.csv',FinalMatrix);
+
+
+% Task 7 
+
+plot(options,Allmin,'bo');
+grid on 
+hold on 
+plot(options,Allavg,'g*');
+plot(options,Allmax,'rd');
+title('Days Vs. Temperature');
+xlabel('Days');
+ylabel('Temperature [Degrees C]'); 
+plot([min(options) max(options)],[OverallMin OverallMin],'b-');
+plot([min(options) max(options)],[OverallAvg OverallAvg],'g-');
+plot([min(options) max(options)],[OverallMax OverallMax],'r-');
+legend('Daily Minimum','Daily Average','Daily Maximum','Long-Term Minimum','Long-Term Average','Long-Term Maximum'); 
+hold off
